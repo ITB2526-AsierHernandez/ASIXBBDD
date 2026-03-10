@@ -1,0 +1,6 @@
+USE Prueba;
+CREATE TABLE GEOMETRY_DASH(
+    id INT PRIMARY KEY,
+    nivel VARCHAR(100),
+    dificultad VARCHAR(100)
+);
