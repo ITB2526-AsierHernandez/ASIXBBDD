@@ -1,6 +1,11 @@
+USE tech_summit;
 SELECT nom,cognom FROM dades_ponent WHERE id=1;
 SELECT nom,cognom FROM dades_ponent WHERE id <= 4;
 SELECT nom,cognom FROM dades_ponent WHERE id % 2 = !0;
 SELECT nom,cognom FROM dades_ponent WHERE id % 2 = 0;
 SELECT nom,cognom FROM dades_ponent WHERE id IN (1,2,3);
 SELECT count(nom) FROM dades_ponent WHERE cognom = "rovira";
+SELECT count(nom) AS persones FROM dades_ponent WHERE nom = "anna" AND cognom = "rovira";
+SELECT nom FROM dades_ponent WHERE nom = "anna" OR cognom = "rovira" GROUP BY nom;
+SELECT count(*) AS cuenta FROM dades_ponent WHERE nom = "anna" OR cognom = "rovira" GROUP BY nom;
+SELECT count(*) AS cuenta FROM dades_ponent WHERE nom = "anna" OR cognom = "rovira" ORDER BY count(*);
