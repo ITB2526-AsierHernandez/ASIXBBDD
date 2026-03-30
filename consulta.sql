@@ -20,4 +20,5 @@ UPDATE dades_ponent
 SET 
     ordinadors = FLOOR(1 + RAND() * 4),   -- valores entre 1 y 4
     rate = FLOOR(5 + RAND() * 6);
-SELECT * FROM sessio;
+SELECT * FROM dades_ponent;
+SHOW FUNCTION STATUS WHERE name = 'MD5';

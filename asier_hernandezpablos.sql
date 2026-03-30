@@ -119,204 +119,226 @@ SELECT sum(ordinadors),rate FROM dades_ponent GROUP BY rate;
 SELECT count(titol),sala FROM sessio GROUP BY sala HAVING COUNT(titol) > 1;
 -- 34. Volem analitzar si els experts tenen prou eines segons el seu nivell acadèmic.
 -- Agrupa els ponents pel seu 'rate', mostra la mitjana d'equips de cada grup i filtra només aquells on la mitjana superi 1.
-
+SELECT AVG(ordinadors),rate FROM dades_ponent GROUP BY rate HAVING AVG(ordinadors) > 1;
 -- 35. L'equip de dades vol fer una estadística curiosa per saber si hi ha lletres més "populars" entre els ponents.
 -- Mostra la primera lletra del nom i quants ponents tenen aquesta inicial, agrupat per aquesta lletra i ordenat pel recompte.
-
+SELECT SUBSTRING(nom,1,1) AS "primera_lletra", COUNT(*) AS "Num_Ponents" FROM dades_ponent GROUP BY primera_lletra ORDER BY "Num_Ponents" DESC;
 -- 36. Hi ha ponents que encara no han estat avaluats i la columna 'rate' té valors buits o desconeguts.
 -- Mostra un llistat amb el nom i el 'rate', però si el valor és NULL, mostra un 5 com a valor mínim de seguretat.
 -- Modifica les dades qeu calgui per provar aquesta consulta.
-
+-- Assignem NULL a alguns ponents per simular que no han estat avaluats
+UPDATE dades_ponent
+SET rate = NULL
+WHERE id IN (2, 3);
+SELECT nom,IFNULL(rate,5) FROM dades_ponent;
 -- 37. Per a la llista pública de ponents a la web, no volem que ningú aparegui sense una empresa assignada.
 -- Obté el nom i cognom, i si un ponent no té empresa, mostra el text 'Freelance' en una columna anomenada 'Empresa_Publica'.
 -- Modifica les dades qeu calgui per provar aquesta consulta.
-
+-- Assignem NULL a alguns ponents per simular que no tenen empresa
+UPDATE dades_ponent
+SET empresa = NULL
+WHERE id IN (1, 5);
+SELECT nom,cognom,IFNULL(empresa,'Freelance') AS Empresa_Publica FROM dades_ponent;
 -- 38. Volem automatitzar la classificació visual dels ponents segons la seva valoració en el panell de control.
 -- Crea un llistat amb una columna 'Estatus' que mostri 'Expert' si el rate és igual o superior a 9 i 'Standard' en cas contrari.
-
+SELECT nom,cognom,IF(rate >= 9,'Expert','Standard') AS "Estatus" FROM dades_ponent;
 -- 39. Logística vol saber quines sales necessiten reforç de personal de protocol segons la seva importància.
 -- Fes un llistat que mostri, per a cada sessió,  el títol de la sessió i posa 'Sala_Principal' si la xerrada és a la 'sala a' o 'Sala_Secundaria' si és a qualsevol altra.
-
+SELECT titol,IF(sala = "sala a", 'Sala_Principal','Sala_Secundaria') FROM sessio;
 -- 40. El departament de recursos humans vol una escala de rangs molt més clara per classificar els perfils.
 -- Fes un llistat que mostri a cada registre el nom i l'empresa, i usa una estructura condicional per mostrar: de 5-6 'Junior', de 7-8 'Senior', i de 9-10 'Master'.
-
+SELECT nom, empresa,
+       CASE
+           WHEN rate BETWEEN 5 AND 6 THEN 'Junior'
+           WHEN rate BETWEEN 7 AND 8 THEN 'Senior'
+           WHEN rate BETWEEN 9 AND 10 THEN 'Master'
+           ELSE 'No clasificat'
+       END AS "Rang"
+FROM dades_ponent;
 -- 41. El sistema de seguretat necessita imprimir en cada informe el dia exacte en què s'ha consultat la base de dades.
 -- Fes una consulta que mostri la data actual del servidor amb l'àlies 'Data_Consulta'.
-
+SELECT CURRENT_DATE() AS "Data_Consulta" FROM DUAL;
 -- 42. Per al registre de logs de l'aplicació mòbil del congrés, necessitem el segell de temps complet.
 -- Obté  la data i l'hora exacta del sistema (NOW) en una columna anomenada 'Timestamp_Execucio'.
-
+SELECT NOW() AS "Timestamp_Execucio" FROM DUAL;
 -- 43. Volem saber quant de temps de marge tenim des que va començar l'any del congrés per tancar els comptes.
 -- Calcula quants dies han passat des de l'1 de gener de 2026 fins al dia d'avui.
-
+SELECT DATEDIFF(CURDATE(), '2026-01-01') AS Dies_Transcorreguts;
 -- 44. El servei de neteja només necessita saber a quina hora en punt comencen les sessions per organitzar els torns.
 -- Fes un llistat que mostri a cada registre mostri el títol de la sessió i només el valor de l'hora d'inici (sense minuts), ordenat cronològicament.
-
+SELECT titol,EXTRACT(HOUR FROM hora) FROM sessio ORDER BY hora;
 -- 45. L'equip del catering vol organitzar els torns de l'esmorzar i del dinar segons l'horari de les xerrades.
 -- Fes un llistat que mostri a cada registre mostri el títol de la sessió i posa 'Torn_1' si l'hora és anterior a les 11:30:00, o 'Torn_2' si és posterior.
-
+SELECT titol,IF(hora < '11:30:00', 'Torn_1','Torn_2') FROM sessio;
 -- 46. Per a un missatge de benvinguda automatitzat a les pantalles, volem ajuntar el nom del ponent i la data actual.
 -- Mostra un llistat que ajunti en una sola columna el nom del professor i la data d'avui (CURDATE).
-
+SELECT CONCAT(nom,' ',CURRENT_DATE()) AS "Missatge Benvinguda!" FROM dades_ponent;
 -- 47. El tècnic de so vol saber quants minuts han passat des de l'inici del dia per calibrar les taules de mescles.
 -- Calcula el total de minuts que han trascorren de les 00:00:00 per a cada sessió a partir de la seva hora d'inici.
-
+SELECT titol, sala,TIME_TO_SEC(hora)/60 AS minuts_des_de_mitjanit FROM sessio;
 -- 48. Per motius de traçabilitat, volem saber quin usuari és el responsable de les consultes actuals.
 -- Selecciona el nom de l'usuari que està connectat actualment a la base de dades del Tech Summit.
-
+SELECT USER();
 -- 49. El servei de manteniment informàtic ha de verificar si el servidor és prou modern per al nou programari.
 -- Obté una consulta que retorni la versió del servidor de base de dades que estem fent servir.
-
+SELECT VERSION();
 -- 50. Volem confirmar que estem operant sobre la base de dades de l'esdeveniment i no sobre una de proves.
 -- Mostra el nom de la base de dades que està activa en aquest instant de la connexió.
-
+SELECT DATABASE();
 -- 51. Per protegir les dades personals en fitxers externs, volem crear un identificador xifrat basat en el cognom.
 -- Genera un codi MD5 a partir del cognom del ponent i mostra'l al costat del seu nom real.
-
+--S'HA FET AMB SHA2 PERQUE MD5 NO FUNCIONA
+SELECT nom, SHA2(cognom,256) AS xifrat FROM dades_ponent;
 -- 52. Per exportar els llistats a un sistema de correu antic, necessitem un format de text pla molt senzill.
 -- Concatena el nom, el cognom i l'empresa separats per barres verticals ('|') i posa l'àlies 'Registre_Exportacio'.
-
+SELECT CONCAT_WS('|', nom, cognom, empresa) AS "Registre_Exportacio" FROM dades_ponent;
 -- 53. Els títols de les sessions a la web del congrés han de seguir un format de codi d'URL sense espais.
 -- Mostra el títol en majúscules i canvia tots els espais per guions baixos ('_'), filtrant només les sessions de la 'sala b'.
-
+SELECT UPPER(REPLACE(titol,' ','_')) FROM sessio WHERE sala = 'sala b';
 -- 54. Volem saber quina és la xerrada amb el títol més llarg per ajustar el tamany de la lletra als monitors.
 -- Obté la longitud del títol més extens de tota la taula de sessions i mostra només el número de caràcters.
-
+SELECT MAX(LENGTH(titol)) AS "Num_caracters_titol_mes_llarg" FROM sessio;
 -- 55. El departament de disseny vol imprimir unes xapes rodones petites on només hi caben noms de 4 caràcters.
 -- Selecciona el nom i cognom dels ponents que tenen un nom de exactament 4 caràcters, ordenats per l'empresa.
-
+SELECT nom,cognom FROM dades_ponent WHERE LENGTH(nom) = 4 ORDER BY empresa;
 -- 56. Per a un joc de pistes durant el descans, volem mostrar només una part del nom dels ponents.
 -- Mostra les lletres que van de la posició 2 a la 5 del nom de cada ponent i anomena la columna 'Pista_Nom'.
-
+SELECT SUBSTRING(nom,2,5) AS "Pista_Nom" FROM dades_ponent;
 -- 57. Volem crear un efecte visual curiós en la pantalla de benvinguda de la sala d'actes.
 -- Mostra el nom del ponent i el seu mateix nom escrit totalment a l'inrevés (REVERSE) en una columna nova.
-
+SELECT nom,REVERSE(nom) FROM dades_ponent;
 -- 58. El departament de qualitat vol simular un increment del 25% en totes les puntuacions de nivell.
 -- Multiplica el 'rate' per 1.25, arrodoneix el resultat a 1 decimal i mostra-ho en un llistat al costat del nom del ponent.
-
+SELECT nom,ROUND(rate * 1.25,1) FROM dades_ponent;
 -- 59. L'equip de dades necessita fer una operació matemàtica complexa sobre els identificadors de les xerrades.
 -- Calcula el quadrat de l'ID de cada sessió i obté la suma total de tots aquests valors quadràtics.
-
+SELECT SUM(POWER(id,2)) FROM sessio;
 -- 60. Volem generar uns codis de seguretat exponencials per als ponents segons la seva posició al llistat.
 -- Obté un llistat amb l'ID del ponent i el resultat d'elevar l'ID al seu propi valor d'ID, amb l'àlies 'Hash_Exponencial'.
-
+SELECT id,POWER(id,id) AS "Hash_Exponencial" FROM dades_ponent;
 -- 61. Per donar visibilitat a tothom, volem triar un ponent a l'atzar cada vegada que carreguem la web.
 -- Obté el nom i l'empresa d'un sol ponent triat de forma aleatòria de tota la base de dades.
-
+SELECT nom,empresa FROM dades_ponent ORDER BY RAND() LIMIT 1;
 -- 62. Volem fer tres torns diferents de recollida d'acreditacions segons l'ordre d'inscripció.
 -- Fes un llistat que mostri el nom del ponent i el residu de dividir el seu ID per 3 per saber a quin torn pertany.
-
+SELECT nom, id % 3 AS "Torn" FROM dades_ponent;
 -- 63. La impremta ens pregunta quina és l'empresa amb el nom més curt per estalviar espai en els fulletons.
 -- Troba quina és la longitud mínima del camp empresa i mostra també el nom d'aquella empresa específica.
-
+SELECT empresa,LENGTH(empresa) AS "longitud" FROM dades_ponent WHERE empresa IS NOT NULL ORDER BY longitud LIMIT 1;
 -- 64. Necessitem un llistat informatiu per als panells de cada planta que indiqui la sessió i la sala.
 -- Fes un llistat que mostri concatenat el text 'Xerrada: ', el títol, ' Ubicació: ' i la sala en una columna anomenada 'Guia_Sessio'.
-
+SELECT CONCAT('Xerrada:',' ',titol,', ','Ubicació:',' ',sala) AS "Guia_Sessio" FROM sessio;
 -- 65. Per evitar que la web mostri espais buits quan un ponent no porta material propi.
 -- Mostra un llistat amb el nom del ponent i el nombre d'ordinadors, però si és NULL, mostra el text 'Material_Propi'.
-
+INSERT INTO dades_ponent (id, nom, cognom, empresa, ordinadors, rate, complex_rate)
+VALUES (1010, 'pau', 'martin', 'freelance inc', NULL, 7, 7.5);
+SELECT nom,IFNULL(ordinadors,'Material_Propi') FROM dades_ponent;
 -- 66. L'equip de manteniment vol saber el volum de feina a la 'sala a' i la 'sala b'.
 -- Compta quantes sessions es fan en aquestes dues sales en total fent servir una condició de filtratge.
-
+SELECT COUNT(*) AS "Total_Sessions" FROM sessio WHERE sala IN ('sala a', 'sala b');
 -- 67. Volem analitzar l'impacte dels ponents que pertanyen a l'empresa 'innovate asix'.
 -- Obté la suma de tots els IDs dels ponents que treballen en aquesta empresa concreta.
-
+SELECT sum(id) FROM dades_ponent WHERE empresa = "innovate asix";
 -- 68. Per a un estudi sobre la diversitat de noms en els congressos de tecnologia d'enguany.
 -- Obté quina és la mitjana de caràcters (longitud) que tenen els cognoms de tots els ponents que participen.
-
+SELECT AVG(LENGTH(cognom)) FROM dades_ponent;
 -- 69. Per a un format de llista més compacte per a dispositius mòbils antics.
 -- Fes un llistat que mostri el nom del ponent i només la primera lletra del seu cognom seguida d'un punt (ex: 'anna g.').
-
+SELECT CONCAT(nom,' ', SUBSTRING(cognom,1,1),'.') FROM dades_ponent;
 -- 70. El cost d'assegurar cada ordinador que entra a l'edifici és de 50€.
 -- Calcula quin és el cost total d'assegurança per a cada ponent segons la quantitat d'equips que porta.
-
+SELECT nom,ordinadors * 50 AS "Cost_Assegurança" FROM dades_ponent;
 -- 71. L'equip de coordinació de tarda necessita la graella de xerrades a partir del migdia.
 -- Selecciona totes les sessions que comencen a les 13:00:00 o més tard, mostrant el títol i l'hora d'inici.
-
+SELECT titol,hora FROM sessio WHERE hora > '13:00:00';
 -- 72. Volem detectar títols de xerrades que puguin tenir espais innecessaris que trenquin el disseny.
 -- Fes un llistat que mostri el títol i una columna amb la diferència entre la seva longitud real i la seva longitud si li treiem els espais.
-
+SELECT titol, LENGTH(titol) - LENGTH(REPLACE(titol, ' ', '')) FROM sessio;
 -- 73. Per a un exercici de nivell variable, volem establir un llindar de referència que canviï.
 -- Genera un número aleatori que es trobi exactament entre el valor mínim de 'rate' i el valor màxim guardats a la taula.
-
+SELECT MIN(rate) + (MAX(rate) - MIN(rate)) * RAND() AS numero_aleatori FROM dades_ponent;
 -- 74. Volem saber quins noms de ponent són més "sonors" per a la megafonia.
 -- Obté un llistat dels ponents que tenen més d'una lletra 'a' al seu nom, comparant la longitud original amb la del nom sense 'a'.
-
+SELECT nom,LENGTH(nom) - LENGTH(REPLACE(nom, 'a', '')) AS total_a FROM dades_ponent WHERE (LENGTH(nom) - LENGTH(REPLACE(nom, 'a', ''))) > 1;
 -- 75. Per a la pòlissa de riscos laborals del Tech Summit, necessitem calcular l'IVA dels equips.
 -- Obté el 21% de la suma total d'ordinadors de tots els ponents multiplicada per una base de 100€ per unitat.
-
+SELECT sum((ordinadors * 0.21)) * 100 FROM dades_ponent;
 -- 76. El departament de trànsit de persones vol saber quins horaris estan més saturats de xerrades.
 -- Agrupa les sessions per l'hora d'inici i mostra l'hora i quantes n'hi ha a cada franja.
-
+SELECT hora,count(titol) FROM sessio GROUP BY hora;
 -- 77. Per crear els indicadors que aniran penjats del sostre dels passadissos.
 -- Fes un llistat que mostri la sala i el títol de la sessió ajuntats amb una fletxa " >>> " i posa l'àlies 'Indicador_Direccio'.
-
+SELECT CONCAT(sala,' ','>>>',' ',titol) AS "Indicador_Direccio" FROM sessio;
 -- 78. Volem identificar el cognom més llarg per assegurar-nos que cap nom queda tallat en els llistats.
 -- Troba el cognom que té més caràcters de tota la taula i mostra la seva longitud màxima.
-
+SELECT cognom,LENGTH(cognom) AS "longitud" FROM dades_ponent WHERE cognom IS NOT NULL ORDER BY longitud DESC LIMIT 1;
 -- 79. Necessitem un filtre ràpid per a la gestió d'accessos segons si la sessió és de matí o de tarda.
 -- Fes un llistat que on tinguis una columna que mostri 'MATI' si la sessió comença abans de les 14:00:00 o 'TARDA' si comença més tard.
-
+SELECT titol,IF(hora < '14:00:00','MATI','TARDA') FROM sessio;
 -- 80. Volem comparar la diferència tècnica entre els dos ponents més veterans (ID 1 i ID 2).
 -- Calcula la diferència absoluta entre el nombre d'equips del ponent amb ID 1 i el ponent amb ID 2 en una sola consulta.
-
+SELECT 
+    ABS(
+        (SELECT ordinadors FROM dades_ponent WHERE id = 1) - 
+        (SELECT ordinadors FROM dades_ponent WHERE id = 2)
+    ) AS diferencia_ordinadors;
 -- 81. Per a la secció de crèdits finals de la web, volem un ordre alfabètic invers.
 -- Mostra el títol de totes les sessions en minúscules i ordenades de la Z a la A.
-
+SELECT titol FROM sessio ORDER BY titol DESC;
 -- 82. Volem saber la riquesa de col·laboracions empresarials que tenim en aquesta edició.
 -- Compta quantes empreses diferents (sense repetir) participen en total en el Tech Summit.
-
+SELECT COUNT(DISTINCT empresa) AS total_empreses FROM dades_ponent;;
 -- 83. Per crear un efecte animat de càrrega de dades en el panell de l'administrador.
 -- Mostra l'ID, el nom i una columna nova on el nom aparegui repetit 5 vegades seguides per a cada registre.
-
+SELECT id,nom,REPEAT(nom, 5) AS nom_repetit FROM dades_ponent;
 -- 84. Hi ha hagut un canvi d'última hora en el nom de les instal·lacions de l'esdeveniment.
 -- Obté un llistat on la paraula 'sala' del camp sala aparegui substituïda pel text 'AULARI_TECNIC'.
-
+SELECT REPLACE(sala,'sala','AULARI_TECNIC') FROM sessio;
 -- 85. Per a les estadístiques que s'enviaran a la Generalitat, necessitem la mitjana d'equips sense decimals.
 -- Calcula la mitjana d'ordinadors de tots els ponents i trunca el resultat (TRUNCATE) per mostrar només la part sencer.
-
+SELECT TRUNCATE(AVG(ordinadors),0) FROM dades_ponent;
 -- 86. Si el prestigi dels nostres professors augmenta de manera exponencial segons la seva nota actual.
 -- Calcula el 'rate' elevat al quadrat per a cada ponent i mostra el resultat al costat de la seva empresa.
-
+SELECT empresa,POWER(rate,2) FROM dades_ponent;
 -- 87. Per a un sistema d'etiquetatge que segueix les normes d'arxiu tradicionals.
 -- Fes un llistat que mostri el cognom en majúscules, seguit d'una coma i el nom original (ex: 'ROVIRA, marc').
-
+SELECT CONCAT(UPPER(cognom),', ',nom) FROM dades_ponent;
 -- 88. L'equip de màrqueting ja està pensant en el Tech Summit del 2027.
 -- Calcula quants dies falten des d'avui mateix fins al 15 de febrer de 2027 fent servir una funció de diferència de dates.
-
+SELECT DATEDIFF('2027-02-15',CURDATE()) AS Dies_Restants;
 -- 89. Volem trobar ràpidament quines xerrades tracten sobre Intel·ligència Artificial.
 -- Fes un llistat que mostri el títol de la sessió i la posició numèrica on apareix el text 'ia' dins del títol de cada xerrada.
-
+SELECT titol, LOCATE('ia',titol) AS "posició numèrica" FROM sessio;
 -- 90. Per a una integració amb un sistema de gestió d'hotels que només accepta camps de 20 caràcters fixos.
 -- Fes un llistat que mostri el nom del ponent omplint amb asteriscs '*' a l'esquerra fins a arribar exactament als 20 caràcters.
-
+SELECT LPAD(nom,20,'*') FROM dades_ponent;
 -- 91. Volem crear una puntuació de referència paral·lela que no canviï cada vegada que s'executa la consulta.
 -- Fes un llistat que mostri el 'rate' multiplicat per un número aleatori fixant la llavor (seed) amb el número 50.
-
+SELECT rate,TRUNCATE(rate * RAND(50), 0) AS puntuacio_referencia FROM dades_ponent;
 -- 92. El departament de manteniment vol fer una revisió als ponents que porten un nombre d'equips que es pugui aparellar.
 -- Selecciona tots els ponents que porten un nombre parell d'ordinadors i mostra el seu nom i cognom.
-
+SELECT nom,cognom FROM dades_ponent WHERE ordinadors % 2 = 0;
 -- 93. Per a la creació de comptes de correu temporals per a l'ús de la xarxa Wi-Fi interna.
 -- Fes un llistat que mostri concatenat el nom del ponent amb el sufix '@itb.cat' i anomena la columna 'Email_WiFi_Intern'.
-
+SELECT CONCAT(nom,'@itb.cat') AS "Email_WiFi_Intern" FROM dades_ponent;
 -- 94. El departament d'anàlisi estratègica vol una xifra d'impacte tecnològic per cada expert.
 -- Calcula el valor del 'rate' elevat al nombre d'ordinadors per a cada ponent i mostra també la seva empresa.  Fes un llistat.
-
-
+SELECT nom,POWER(rate,ordinadors) AS "impacte_tecnologic",empresa FROM dades_ponent;
 -- 95. Per a la capçalera de l'informe de tancament de trimestre.
 -- Fes una consulta que mostri la data d'avui i el número del mes actual (MONTH) en dues columnes amb àlies propis.
-
+SELECT CURDATE() AS "Data_Avui", MONTH(CURDATE()) AS "Mes_Actual" FROM DUAL;
 -- 96. Volem preveure l'espai i el consum elèctric si l'any vinent cada ponent d''innovate asix' portés 2 ordinadors més.
 -- Fes un llistat que mostri el nom i el nombre d'ordinadors actuals sumant-li 2 unitats, només per als ponents d'aquesta empresa.
-
+SELECT nom,ordinadors + 2 AS "Previsio_consum/espai" FROM dades_ponent WHERE empresa = 'innovate asix';
 -- 97. Per crear un efecte de misteri en els fulletons publicitaris de les xerrades.
 -- Selecciona el títol de cada sessió però retalla'l de manera que no es mostrin les 3 darreres lletres.
-
+SELECT LEFT(titol, LENGTH(titol) - 3) FROM sessio;
 -- 98. Volem donar un tracte preferent en la llista de trasllats al ponent que es va inscriure primer.
 -- Fes un llistat que mostri el nom i una columna que digui 'Cap_de_Llista' si l'ID és igual a 1, o 'Resta_de_Ponents' en cas contrari.
-
+SELECT nom,IF(id = 1,'Cap_de_Llista','Resta_de_Ponents') FROM dades_ponent;
 -- 99. Per a un índex ràpid de participació que sumi el nivell acadèmic i els recursos materials.
 -- Obté la suma de les columnes 'rate' i 'ordenadores' per a cada ponent en una columna anomenada 'Index_Global'.
-
+SELECT nom,ordinadors + rate AS "Index_Global" FROM dades_ponent;
 -- 100. Per donar per finalitzat el llistat oficial de dades del Tech Summit 2026.
 -- Selecciona el nom, el cognom i l'empresa, i afegeix una darrera columna fixa amb el text 'REGISTRE_VERIFICAT'.  Mostra el llistat
+SELECT nom,cognom,empresa,'REGISTRE_VERIFICAT' FROM dades_ponent;
