@@ -342,3 +342,20 @@ SELECT nom,ordinadors + rate AS "Index_Global" FROM dades_ponent;
 -- 100. Per donar per finalitzat el llistat oficial de dades del Tech Summit 2026.
 -- Selecciona el nom, el cognom i l'empresa, i afegeix una darrera columna fixa amb el text 'REGISTRE_VERIFICAT'.  Mostra el llistat
 SELECT nom,cognom,empresa,'REGISTRE_VERIFICAT' FROM dades_ponent;
+--tiempo total
+select * from sessions;
+
+--minutos
+select sum(tiempo) from sessio;
+
+--horas
+select sum(tiempo)/60 from sessio;
+
+--horas (sin decimales)
+select TRUNCATE(sum(tiempo)/60, 0) from sessio;
+
+--horas y minutos
+select TRUNCATE(sum(tiempo)/60, 0), sum(tiempo)%60 from sessio;
+
+--frase
+select CONCAT(TRUNCATE(sum(tiempo)/60, 0), ' horas y ', sum(tiempo)%60, ' minutos') AS HorasMinutos FROM sessio;
