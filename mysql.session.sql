@@ -37,6 +37,9 @@ INSERT INTO sessio (id, titol, sala, hora) VALUES
 (3, 'automatització amb scripts', 'sala a', '13:00:00'),
 (4, 'futur de les bases de dades', 'sala c', '16:00:00');
 
+
+
+
 -- =========================================================
 -- FI DE L'SCRIPT D'INICIALITZACIÓ
 -- =========================================================

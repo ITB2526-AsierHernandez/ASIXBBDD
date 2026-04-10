@@ -22,3 +22,7 @@ SET
     rate = FLOOR(5 + RAND() * 6);
 SELECT * FROM dades_ponent;
 SHOW FUNCTION STATUS WHERE name = 'MD5';
+
+ALTER table sessio add column tiempo INT;
+UPDATE sessio SET tiempo = FLOOR(1 + RAND() * 3) * 15 + 15;
+SELECT * FROM sessio

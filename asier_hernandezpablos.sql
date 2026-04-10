@@ -43,7 +43,7 @@ SELECT nom,cognom,RIGHT(cognom,1) AS ultima_lletra_cognom FROM dades_ponent ORDE
 SELECT CONCAT(nom,' ',cognom) AS "nom_cognom", rand() AS "prioritat" FROM dades_ponent;
 -- 12. Volem fer un sorteig d'una tauleta d'última generació entre tots els ponents de l'esdeveniment.
 -- Fes una consulta, on li assignis a cada ponent un número de loteria sencer entre 1 i 100 i mostra'l a una columna anomenada Numero_Sorteig'.
-SELECT CONCAT(nom,' ',cognom) AS "Nom_Cognom", (TRUNCATE(1 + rand() * 100,0)) AS "Numero_Sorteig" FROM dades_ponent;
+SELECT CONCAT(nom,' ',cognom) AS "Nom_Cognom", (TRUNCATE(1 + rand() * 80,0)) AS "Numero_Sorteig" FROM dades_ponent;
 -- Per fer les consultes 13, 14, i 15, has d'afegir un nou camp complex_rate, on no fagis l'arodoniment
 ALTER TABLE dades_ponent
 ADD COLUMN complex_rate DECIMAL(5,2);
