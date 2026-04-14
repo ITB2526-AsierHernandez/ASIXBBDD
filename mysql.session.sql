@@ -1,7 +1,3 @@
--- =========================================================
--- SCRIPT DE PREPARACIÓ: ITB TECH SUMMIT
--- Aquest script crea l'estat inicial de la base de dades.
--- =========================================================
 
 DROP DATABASE IF EXISTS tech_summit;
 CREATE DATABASE tech_summit;
